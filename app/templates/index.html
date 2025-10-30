@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Calling Demo</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+    <main class="container">
+        <h1>AI Calling Demo</h1>
+        <p class="lead">
+            Start an AI-powered phone call. Provide a destination phone number, customize
+            the assistant prompt, and pick the synthesized voice to use on the call.
+        </p>
+
+        <section class="card">
+            <h2>Call configuration</h2>
+            <form method="post" action="/call" class="form-grid">
+                <label>
+                    Destination phone number
+                    <input type="tel" name="to_number" placeholder="+15551234567" required />
+                </label>
+
+                <label>
+                    Voice
+                    <select name="voice">
+                        {% for item in voices %}
+                        <option value="{{ item }}">{{ item|capitalize }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <label class="full-width">
+                    Assistant prompt
+                    <textarea name="prompt" rows="6">{{ default_prompt }}</textarea>
+                </label>
+
+                <button type="submit" class="primary">Start call</button>
+            </form>
+        </section>
+
+        <section class="card info">
+            <h2>How it works</h2>
+            <ol>
+                <li>The server places an outbound call through Twilio.</li>
+                <li>Twilio streams the live audio to this app over WebSockets.</li>
+                <li>The bridge forwards media to OpenAI Realtime to produce conversational audio.</li>
+            </ol>
+            <p>
+                Expose the application using <code>ngrok</code> and set the public URL in
+                your <code>.env</code> file so Twilio can reach the webhooks.
+            </p>
+        </section>
+    </main>
+</body>
+</html>
