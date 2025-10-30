@@ -36,7 +36,7 @@ A lightweight FastAPI application that lets you launch AI-assisted phone calls u
    | --- | --- |
    | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` | Twilio REST credentials |
    | `TWILIO_CALLER_ID` | The Twilio phone number (E.164 format) used for outbound calls |
-   | `PUBLIC_BASE_URL` | Public URL exposed by ngrok, e.g. `https://abcd1234.ngrok.app` |
+   | `PUBLIC_BASE_URL` | **HTTPS** URL exposed by ngrok, e.g. `https://abcd1234.ngrok.app` |
    | `OPENAI_API_KEY` | Token with access to OpenAI Realtime |
    | `OPENAI_REALTIME_MODEL` | Realtime model name (defaults to `gpt-4o-realtime-preview-2024-12-17`) |
 
@@ -54,7 +54,7 @@ A lightweight FastAPI application that lets you launch AI-assisted phone calls u
    ngrok http 8000
    ```
 
-   Copy the HTTPS forwarding URL and update `PUBLIC_BASE_URL` in your `.env` file. Restart the server if the URL changes.
+   Copy the HTTPS forwarding URL and update `PUBLIC_BASE_URL` in your `.env` file. Restart the server if the URL changes. Twilio requires TLS to establish the media websocket, so non-HTTPS URLs will cause calls to hang up immediately.
 
 3. Visit `http://localhost:8000` to open the UI. Enter a destination number, adjust the prompt/voice, and click **Start call**. Twilio will dial the callee and stream media back to the `/media-stream` websocket, which forwards audio to OpenAI Realtime.
 
@@ -74,7 +74,7 @@ app/
 ## Notes & limitations
 
 - The realtime bridge provided here is designed for experimentation. Depending on your use case you may want to add persistence, authentication, better error handling, or advanced audio buffering logic.
-- Twilio webhooks require a publicly accessible URL. ngrok is convenient for local development but consider deploying the app to a public host for production usage.
+- Twilio webhooks require a publicly accessible **HTTPS** URL so the <Stream> endpoint is reachable via `wss://`. ngrok is convenient for local development but consider deploying the app to a public host for production usage.
 - Ensure that outbound calling complies with local regulations and that you have consent from recipients before placing calls.
 
 ## License

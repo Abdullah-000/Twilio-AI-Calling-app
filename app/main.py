@@ -101,11 +101,12 @@ async def twiml_endpoint(prompt: str, voice: str) -> HTMLResponse:
 async def media_stream(websocket: WebSocket) -> None:
     """Handle media websocket connections coming from Twilio's <Stream> API."""
     requested_subprotocols = websocket.scope.get("subprotocols", [])
-    subprotocol = "audio.twilio.com" if "audio.twilio.com" in requested_subprotocols else None
-    if subprotocol is None:
+    target_subprotocol = "audio.twilio.com"
+    if target_subprotocol not in requested_subprotocols:
         logger.warning("Unexpected websocket subprotocols: %s", requested_subprotocols)
 
-    await websocket.accept(subprotocol=subprotocol)
+    await websocket.accept(subprotocol=target_subprotocol)
+    logger.info("Accepted Twilio websocket (subprotocol=%s)", target_subprotocol)
     bridge: Optional[OpenAIRealtimeBridge] = None
 
     try:

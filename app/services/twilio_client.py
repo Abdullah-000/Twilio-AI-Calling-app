@@ -17,7 +17,7 @@ class TwilioCallClient:
     def start_call(self, to_number: str, prompt: str, voice: str):
         """Create an outbound call and instruct Twilio to fetch the streaming TwiML."""
         query = urlencode({"prompt": prompt, "voice": voice})
-        twiml_url = f"{self.settings.public_base_url}/twiml?{query}"
+        twiml_url = self.settings.build_public_url("/twiml", query=query)
         return self._client.calls.create(
             to=to_number,
             from_=self.settings.twilio_caller_id,
@@ -29,7 +29,7 @@ class TwilioCallClient:
         response = VoiceResponse()
         connect = Connect()
         stream = Stream(
-            url=f"{self.settings.public_base_url.replace('http', 'ws')}/media-stream",
+            url=self.settings.build_public_url("/media-stream", scheme="wss"),
             track="both",
         )
         stream.parameter(Parameter(name="prompt", value=prompt))
