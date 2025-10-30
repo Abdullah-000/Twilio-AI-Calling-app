@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from urllib.parse import urlencode
 
 from twilio.rest import Client
-from twilio.twiml.voice_response import Connect, Parameter, Stream, VoiceResponse
+from twilio.twiml.voice_response import Connect, Stream, VoiceResponse
 
 from app.services.config import Settings
 
@@ -30,10 +30,10 @@ class TwilioCallClient:
         connect = Connect()
         stream = Stream(
             url=self.settings.build_public_url("/media-stream", scheme="wss"),
-            track="both",
+            track="both_tracks",
         )
-        stream.parameter(Parameter(name="prompt", value=prompt))
-        stream.parameter(Parameter(name="voice", value=voice))
+        stream.parameter(name="prompt", value=prompt)
+        stream.parameter(name="voice", value=voice)
         connect.append(stream)
         response.append(connect)
         return str(response)
