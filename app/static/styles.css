@@ -1,0 +1,121 @@
+:root {
+    color-scheme: light dark;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 2rem;
+    background: radial-gradient(circle at top, rgba(59, 130, 246, 0.1), transparent 60%);
+    display: flex;
+    justify-content: center;
+    color: #1f2933;
+}
+
+.container {
+    max-width: 800px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+h1 {
+    margin-bottom: 0.25rem;
+}
+
+.lead {
+    margin-top: 0;
+    color: #4f5b67;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 30px 60px -20px rgba(15, 23, 42, 0.25);
+    backdrop-filter: blur(8px);
+}
+
+.card.info {
+    background: rgba(59, 130, 246, 0.12);
+}
+
+.form-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+label {
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+input[type="tel"],
+select,
+textarea {
+    border: 1px solid rgba(15, 23, 42, 0.2);
+    border-radius: 10px;
+    padding: 0.75rem;
+    font-size: 1rem;
+    font-family: inherit;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+textarea {
+    resize: vertical;
+}
+
+button.primary,
+a.primary {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(120deg, #2563eb, #7c3aed);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 999px;
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button.primary:hover,
+a.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px -15px rgba(59, 130, 246, 0.7);
+}
+
+pre.prompt {
+    white-space: pre-wrap;
+    background: rgba(15, 23, 42, 0.05);
+    border-radius: 12px;
+    padding: 1rem;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+code {
+    background: rgba(15, 23, 42, 0.08);
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.4rem;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 1.5rem;
+    }
+
+    .card {
+        padding: 1.25rem;
+    }
+}
