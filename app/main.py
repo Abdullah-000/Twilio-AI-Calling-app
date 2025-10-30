@@ -102,11 +102,19 @@ async def media_stream(websocket: WebSocket) -> None:
     """Handle media websocket connections coming from Twilio's <Stream> API."""
     requested_subprotocols = websocket.scope.get("subprotocols", [])
     target_subprotocol = "audio.twilio.com"
-    if target_subprotocol not in requested_subprotocols:
+    negotiated_subprotocol: Optional[str] = None
+
+    if target_subprotocol in requested_subprotocols:
+        negotiated_subprotocol = target_subprotocol
+    else:
         logger.warning("Unexpected websocket subprotocols: %s", requested_subprotocols)
 
-    await websocket.accept(subprotocol=target_subprotocol)
-    logger.info("Accepted Twilio websocket (subprotocol=%s)", target_subprotocol)
+    await websocket.accept(subprotocol=negotiated_subprotocol)
+    logger.info(
+        "Accepted Twilio websocket (requested=%s, negotiated=%s)",
+        requested_subprotocols,
+        negotiated_subprotocol or "none",
+    )
     bridge: Optional[OpenAIRealtimeBridge] = None
 
     try:
@@ -114,7 +122,10 @@ async def media_stream(websocket: WebSocket) -> None:
             payload = json.loads(raw_message)
             event_type = payload.get("event")
 
-            if event_type == "start":
+            if event_type == "connected":
+                logger.info("Twilio reports stream connection established")
+
+            elif event_type == "start":
                 stream_sid = payload.get("streamSid")
                 params: Dict[str, Any] = payload.get("start", {}).get("customParameters", {})
                 prompt = params.get("prompt", settings.default_prompt)
@@ -128,7 +139,20 @@ async def media_stream(websocket: WebSocket) -> None:
                     voice=voice,
                     settings=settings,
                 )
-                await bridge.connect()
+
+                try:
+                    await bridge.connect()
+                except Exception:  # pragma: no cover - network/runtime failure should log
+                    logger.exception("Failed to connect realtime bridge to OpenAI")
+                    break
+
+                await websocket.send_json(
+                    {
+                        "event": "mark",
+                        "streamSid": stream_sid,
+                        "mark": {"name": "bridge-ready"},
+                    }
+                )
 
             elif event_type == "media" and bridge:
                 media = payload.get("media", {})
