@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Call in progress</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+    <main class="container">
+        <h1>Call launched ✅</h1>
+        <p class="lead">
+            Twilio is dialing <strong>{{ to_number }}</strong> using the
+            <strong>{{ voice|capitalize }}</strong> voice.
+        </p>
+
+        <section class="card">
+            <h2>Prompt used</h2>
+            <pre class="prompt">{{ prompt }}</pre>
+        </section>
+
+        <section class="card">
+            <h2>Call details</h2>
+            <p>Call SID: <code>{{ call_sid }}</code></p>
+            <p class="info">Keep this page open to launch another call.</p>
+            <a class="primary" href="/">Start another call</a>
+        </section>
+    </main>
+</body>
+</html>
