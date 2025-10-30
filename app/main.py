@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from starlette.websockets import WebSocketState
 from twilio.base.exceptions import TwilioRestException
 
 from app.services.config import get_settings
@@ -99,7 +100,12 @@ async def twiml_endpoint(prompt: str, voice: str) -> HTMLResponse:
 @app.websocket("/media-stream")
 async def media_stream(websocket: WebSocket) -> None:
     """Handle media websocket connections coming from Twilio's <Stream> API."""
-    await websocket.accept()
+    requested_subprotocols = websocket.scope.get("subprotocols", [])
+    subprotocol = "audio.twilio.com" if "audio.twilio.com" in requested_subprotocols else None
+    if subprotocol is None:
+        logger.warning("Unexpected websocket subprotocols: %s", requested_subprotocols)
+
+    await websocket.accept(subprotocol=subprotocol)
     bridge: Optional[OpenAIRealtimeBridge] = None
 
     try:
@@ -113,6 +119,7 @@ async def media_stream(websocket: WebSocket) -> None:
                 prompt = params.get("prompt", settings.default_prompt)
                 voice = params.get("voice", settings.supported_voices[0])
 
+                logger.info("Twilio stream %s starting with voice=%s", stream_sid, voice)
                 bridge = OpenAIRealtimeBridge(
                     websocket=websocket,
                     stream_sid=stream_sid,
@@ -137,7 +144,8 @@ async def media_stream(websocket: WebSocket) -> None:
     finally:
         if bridge:
             await bridge.close()
-        await websocket.close()
+        if websocket.client_state not in (WebSocketState.DISCONNECTED, WebSocketState.CLOSING):
+            await websocket.close()
 
 
 @app.get("/health")
